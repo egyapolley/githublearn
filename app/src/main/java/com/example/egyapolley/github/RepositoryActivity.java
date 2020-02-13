@@ -21,6 +21,9 @@ import java.util.List;
 public class RepositoryActivity extends AppCompatActivity {
     private static final String TAG = "RepositoryActivity";
 
+    final List<RepoDetails> mainrepoDetails = new ArrayList<>();
+    private  MyAdaptor myAdaptor;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,15 +36,16 @@ public class RepositoryActivity extends AppCompatActivity {
 
         RecyclerView recyclerView = findViewById(R.id.recycleView);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        MyAdaptor myAdaptor = new MyAdaptor(loadData(username));
+       myAdaptor = new MyAdaptor(mainrepoDetails);
         recyclerView.setAdapter(myAdaptor);
+        loadData(username);
 
 
 
     }
 
-    private List<RepoDetails> loadData(String username) {
-        final List<RepoDetails> mainrepoDetails = new ArrayList<>();
+    private void loadData(String username) {
+
         RepoRestInterface repoRestInterface = RetrofitClient.getclient().create(RepoRestInterface.class);
         Call<List<RepoDetails>> getrepos = repoRestInterface.getrepos(username);
         getrepos.enqueue(new Callback<List<RepoDetails>>() {
@@ -50,6 +54,8 @@ public class RepositoryActivity extends AppCompatActivity {
                 List<RepoDetails> repoDetails = response.body();
                 mainrepoDetails.clear();
                 mainrepoDetails.addAll(repoDetails);
+                myAdaptor.notifyDataSetChanged();
+
 
 
             }
@@ -61,7 +67,6 @@ public class RepositoryActivity extends AppCompatActivity {
             }
         });
 
-        return mainrepoDetails;
 
 
     }
